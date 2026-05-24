@@ -7,7 +7,8 @@ from PySide6.QtCore import Qt, QUrl
 from PySide6.QtGui import QFont, QPixmap, QPainter, QColor, QPen
 from PySide6.QtWidgets import (
     QApplication, QMainWindow, QWidget, QListWidget, QListWidgetItem, QLineEdit, QPushButton,
-    QFileDialog, QMessageBox, QLabel, QFormLayout, QHBoxLayout, QVBoxLayout, QToolButton, QSizePolicy
+    QFileDialog, QMessageBox, QLabel, QFormLayout, QHBoxLayout, QVBoxLayout, QToolButton, QSizePolicy,
+    QScrollArea
 )
 from PySide6.QtMultimedia import QMediaPlayer, QAudioOutput
 
@@ -249,7 +250,8 @@ class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle("Σχολικό Πολυλεξικό LEXicon (EL/EN/DE/RU/AR/ES/TR) Μπαλανίκα Ελένη -- V1.1.1 Copyright@2026")
-        self.resize(1220, 720)
+        self.resize(1240, 760)
+        self.setMinimumSize(980, 620)
 
         os.makedirs(AUDIO_DIR, exist_ok=True)
 
@@ -277,6 +279,7 @@ class MainWindow(QMainWindow):
             border: 1px solid #cfd8e3;
             border-radius: 8px;
             min-height: 28px;
+            max-height: 32px;
             padding: 4px 8px;
             selection-background-color: #bfdbfe;
         }
@@ -367,11 +370,24 @@ class MainWindow(QMainWindow):
         self.audio_es_input = QLineEdit()
         self.audio_tr_input = QLineEdit()
 
+        for field in [
+            self.audio_el_input, self.audio_en_input, self.audio_de_input, self.audio_ru_input,
+            self.audio_ar_input, self.audio_es_input, self.audio_tr_input,
+            self.category_input, self.tags_input, self.notes_input
+        ]:
+            field.setMinimumWidth(260)
+            field.setMaximumWidth(420)
+            field.setFixedHeight(32)
+
+        self.key_input.setMinimumWidth(260)
+        self.key_input.setMaximumWidth(420)
+        self.key_input.setFixedHeight(32)
+
         form = QFormLayout()
         form.setLabelAlignment(Qt.AlignRight | Qt.AlignVCenter)
         form.setFormAlignment(Qt.AlignTop)
-        form.setHorizontalSpacing(14)
-        form.setVerticalSpacing(10)
+        form.setHorizontalSpacing(12)
+        form.setVerticalSpacing(8)
         form.addRow("Key (μοναδικό):", self.key_input)
 
         form.addRow("Ελληνικά:", self._lang_row("🇬🇷", self.el_input, "el"))
@@ -437,14 +453,25 @@ class MainWindow(QMainWindow):
         right_layout.addStretch(1)
 
         right_widget = QWidget()
+        right_widget.setObjectName("rightPanel")
         right_widget.setLayout(right_layout)
-        right_widget.setMaximumWidth(820)
+        right_widget.setMinimumWidth(640)
+        right_widget.setMaximumWidth(720)
+
+        right_scroll = QScrollArea()
+        right_scroll.setWidget(right_widget)
+        right_scroll.setWidgetResizable(False)
+        right_scroll.setFrameShape(QScrollArea.NoFrame)
+        right_scroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        right_scroll.setVerticalScrollBarPolicy(Qt.ScrollBarAsNeeded)
+        right_scroll.setMinimumWidth(660)
+        right_scroll.setMaximumWidth(740)
 
         main_layout = QHBoxLayout()
         main_layout.setContentsMargins(12, 12, 12, 12)
         main_layout.setSpacing(16)
-        main_layout.addLayout(left_layout, 2)
-        main_layout.addWidget(right_widget, 2)
+        main_layout.addLayout(left_layout, 1)
+        main_layout.addWidget(right_scroll, 0, Qt.AlignTop | Qt.AlignRight)
         root.setLayout(main_layout)
 
         self.current_entry_id: Optional[int] = None
@@ -457,18 +484,21 @@ class MainWindow(QMainWindow):
         layout.setSpacing(8)
 
         flag = QLabel()
-        flag.setPixmap(make_flag_pixmap(lang_code))
+        flag.setPixmap(make_flag_pixmap(lang_code, 30, 20))
         flag.setAlignment(Qt.AlignCenter)
-        flag.setFixedWidth(38)
+        flag.setFixedSize(38, 24)
         flag.setToolTip(flag_emoji)
 
-        line_edit.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        line_edit.setMinimumWidth(260)
+        line_edit.setMaximumWidth(420)
+        line_edit.setFixedHeight(32)
+        line_edit.setSizePolicy(QSizePolicy.Fixed, QSizePolicy.Fixed)
 
         btn = QToolButton()
         btn.setText("▶")
         btn.setToolTip(f"Play {lang_code.upper()}")
         btn.clicked.connect(lambda: self.play_lang(lang_code))
-        btn.setFixedWidth(38)
+        btn.setFixedSize(38, 32)
 
         layout.addWidget(flag, 0, Qt.AlignVCenter)
         layout.addWidget(line_edit, 1, Qt.AlignVCenter)
