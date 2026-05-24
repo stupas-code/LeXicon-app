@@ -1,4 +1,5 @@
 PySide6
+shiboken6
 pandas
 openpyxl
 pyinstaller
