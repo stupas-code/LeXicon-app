@@ -3,3 +3,4 @@ shiboken6
 pandas
 openpyxl
 pyinstaller
+Pillow
