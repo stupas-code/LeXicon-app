@@ -26,13 +26,13 @@ jobs:
         run: |
           pip install -r requirements.txt
 
-      - name: Install Extra PySide Dependencies
+      - name: Install Extra Dependencies
         run: |
-          pip install PySide6 shiboken6 pyinstaller
+          pip install PySide6 shiboken6 pyinstaller Pillow
 
       - name: Build LEXicon EXE
         run: |
-          pyinstaller --noconfirm --onedir --windowed --icon=icon.ico --name LEXicon --collect-all PySide6 --collect-all shiboken6 --hidden-import=shiboken6.Shiboken LEXicon.py
+          pyinstaller --noconfirm --onedir --windowed --icon=icon.ico --name LEXicon --collect-all PySide6 --collect-all shiboken6 --hidden-import=shiboken6.Shiboken --add-data "flags;flags" LEXicon_windows_optimised.py
 
       - name: Upload Windows Build
         uses: actions/upload-artifact@v4
