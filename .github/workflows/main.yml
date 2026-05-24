@@ -1,4 +1,4 @@
-name: Build Windows EXE
+name: Build LEXicon EXE
 
 on:
   workflow_dispatch:
@@ -8,24 +8,30 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Setup Python
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      - name: Install Requirements
+      - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
+          pip install PySide6
+          pip install shiboken6
+          pip install pyinstaller
 
-      - name: Build LEXicon EXE
-        run: pyinstaller --noconfirm --onedir --windowed --icon=icon.ico --name LEXicon LEXicon.py
+      - name: Build EXE
+        run: |
+          pyinstaller --onefile --windowed LEXicon.py ^
+            --collect-all PySide6 ^
+            --collect-all shiboken6 ^
+            --hidden-import=shiboken6.Shiboken
 
-      - name: Upload Windows Build
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: LEXicon-Windows
-          path: dist/LEXicon
+          path: dist/*
