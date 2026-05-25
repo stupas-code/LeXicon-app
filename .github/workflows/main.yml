@@ -1,17 +1,17 @@
-name: Build Windows EXE
-
-env:
-  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+name: Build LEXicon Windows EXE
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - main
 
 jobs:
-  build:
+  build-windows:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       - name: Setup Python
@@ -19,28 +19,37 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Upgrade pip
-        run: python -m pip install --upgrade pip
-
-      - name: Install Requirements
-        shell: cmd
+      - name: Install dependencies
         run: |
-          pip install -r requirements.txt
-
-      - name: Install Extra Dependencies
-        shell: cmd
-        run: |
-          pip install PySide6==6.7.3
-          pip install shiboken6==6.7.3
+          python -m pip install --upgrade pip
           pip install pyinstaller
-          pip install Pillow
+          pip install PySide6 pandas openpyxl
 
-      - name: Build LEXicon EXE
-        shell: cmd
+      - name: Build EXE
         run: |
-          pyinstaller --noconfirm --onedir --windowed --icon=icon.ico --name LEXicon --collect-submodules shiboken6 --collect-binaries shiboken6 --collect-data shiboken6 --collect-all PySide6 --hidden-import shiboken6.Shiboken --add-data "flags;flags" LEXicon_windows_optimised.py
+          pyinstaller ^
+          --noconfirm ^
+          --windowed ^
+          --onedir ^
+          --name LEXicon ^
+          --icon=icon.ico ^
+          LEXicon_windows_final_responsive_audiofix.py
 
-      - name: Upload Windows Build
+      - name: Copy audio folder
+        shell: powershell
+        run: |
+          if (Test-Path "audio") {
+            Copy-Item "audio" "dist/LEXicon/audio" -Recurse -Force
+          }
+
+      - name: Copy database
+        shell: powershell
+        run: |
+          if (Test-Path "lexiko.db") {
+            Copy-Item "lexiko.db" "dist/LEXicon/" -Force
+          }
+
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
           name: LEXicon-Windows
