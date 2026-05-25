@@ -22,16 +22,20 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller PySide6 pandas openpyxl
+          pip install numpy==1.26.4 pandas==2.2.2 openpyxl==3.1.2 PySide6 pyinstaller
 
       - name: Build EXE
         run: |
           pyinstaller `
             --noconfirm `
+            --clean `
             --windowed `
             --onedir `
             --name LEXicon `
             --icon=icon.ico `
+            --collect-all numpy `
+            --collect-all pandas `
+            --collect-all PySide6 `
             LEXicon_windows_final_responsive_audiofix.py
 
       - name: Copy audio folder
