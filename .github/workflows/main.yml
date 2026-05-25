@@ -22,31 +22,30 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller
-          pip install PySide6 pandas openpyxl
+          pip install pyinstaller PySide6 pandas openpyxl
 
       - name: Build EXE
         run: |
-          pyinstaller ^
-          --noconfirm ^
-          --windowed ^
-          --onedir ^
-          --name LEXicon ^
-          --icon=icon.ico ^
-          LEXicon_windows_final_responsive_audiofix.py
+          pyinstaller `
+            --noconfirm `
+            --windowed `
+            --onedir `
+            --name LEXicon `
+            --icon=icon.ico `
+            LEXicon_windows_final_responsive_audiofix.py
 
       - name: Copy audio folder
         shell: powershell
         run: |
           if (Test-Path "audio") {
-            Copy-Item "audio" "dist/LEXicon/audio" -Recurse -Force
+            Copy-Item -Path "audio" -Destination "dist/LEXicon/audio" -Recurse -Force
           }
 
       - name: Copy database
         shell: powershell
         run: |
           if (Test-Path "lexiko.db") {
-            Copy-Item "lexiko.db" "dist/LEXicon/" -Force
+            Copy-Item -Path "lexiko.db" -Destination "dist/LEXicon/" -Force
           }
 
       - name: Upload Artifact
